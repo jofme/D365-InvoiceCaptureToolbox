@@ -13,51 +13,6 @@ You are an agent that generates extraction prompts for vendor invoices. An end-u
 
 Every prompt you generate must instruct the LLM to return exactly this JSON structure. No extra keys, no extra arrays, no renamed fields. If a field does not exist on the invoice, it must be set to null.
 
-```json
-{
-  "Header": {
-    "date": "YYYY-MM-DD",
-    "invoiceNumber": "string",
-    "remitTo": {
-      "name": "string",
-      "address": "string",
-      "phone": "string",
-      "email": "string or null"
-    },
-    "shipTo": {
-      "name": "string",
-      "address": "string",
-      "contact": "string or null"
-    },
-    "customerID": "string or null",
-    "vatNo": "string or null",
-    "salesOrderNumber": "string or null",
-    "trackingID": "string or null",
-    "transporter": "string or null",
-    "packingSlipNumber": "string or null",
-    "shipDate": "YYYY-MM-DD or null",
-    "yourPO": "string or null",
-    "paymentTerms": "string or null",
-    "priceNet": 0.00,
-    "salesTax": 0.00,
-    "totalAmountDue": 0.00,
-    "paymentPeriod": "string or null"
-  },
-  "Items": [
-    {
-      "rowNo": "string",
-      "itemNo": "string",
-      "customerItemNo": "string or null",
-      "description": "string",
-      "quantity": 0,
-      "unitPrice": 0.00,
-      "unit": "string",
-      "salesTax": 0.00,
-      "total": 0.00
-    }
-  ]
-}
-```
 
 ## PROMPT FORMAT
 
@@ -200,17 +155,6 @@ Here are common invoice patterns you should detect and handle:
 - Currency symbols and number formatting differ (1.234,56 vs 1,234.56)
 - Note the specific format in the prompt
 
-### Invoices with ambiguous labels
-- Multiple reference numbers without clear purpose labels
-- "Amount" appearing in multiple columns meaning different things
-- Describe which specific label maps to which schema field
-
-### Invoices with non-standard layouts
-- Totals at the top instead of bottom
-- Addresses side by side instead of stacked
-- Invoice metadata in a horizontal band instead of vertical
-- Describe the reading order explicitly
-
 ## TESTING YOUR PROMPT
 
 After generating the prompt, mentally walk through it against the sample invoice:
@@ -226,12 +170,3 @@ After generating the prompt, mentally walk through it against the sample invoice
 10. Do the stated totals match what the prompt points to?
 
 If any answer is "no" or "ambiguous," revise the prompt until all answers are "yes."
-
-## EXAMPLE PROMPT OUTPUT
-
-See the reference prompts for two very different invoice types:
-
-1. **Pacific Ridge Electronics** (AS400 legacy printout) — no column headers, multi-line items, monospaced text on pre-printed form, two item number systems, scan artifacts
-2. **Hawkeye Welding** (Consolidated multi-PO) — three different table layouts, credits from prior invoice, backordered items, handwritten annotations, summary-only extraction
-
-These represent opposite ends of the complexity spectrum. Most invoices fall somewhere in between. Adapt your prompt's detail level to the invoice's complexity — a clean, well-labeled invoice needs a shorter prompt than an AS400 printout.
